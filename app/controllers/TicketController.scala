@@ -26,9 +26,13 @@ class TicketController @Inject()(cc: ControllerComponents,ws: WSClient, config: 
   val password = config.get[String]("zendesk.password")
 
 
-  def getAllTicket = Action.async { implicit request: Request[AnyContent] =>
-
-    val request: WSRequest = ws.url(ticketURL).addHttpHeaders("Accept" -> "application/json")
+  def getAllTicket(page: String) = Action.async { implicit request: Request[AnyContent] =>
+    val url = if (page != "") {
+      ticketURL + "?page=" + page
+    } else {
+      ticketURL
+    }
+    val request: WSRequest = ws.url(url).addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis).withAuth(user, password, WSAuthScheme.BASIC)
     request.get().map { response =>
       if (response.status == 200) {
@@ -57,7 +61,7 @@ class TicketController @Inject()(cc: ControllerComponents,ws: WSClient, config: 
             InternalServerError(Json.obj("message" -> message))
         }
       } else {
-        val message = "Cannot retrieve tickets information from Source: " + ticketURL + ", Status: " + response.status
+        val message = "Cannot retrieve tickets information from Source: " + url + ", Status: " + response.status
         InternalServerError(Json.obj("message" -> message))
       }
     }
