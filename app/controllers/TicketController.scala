@@ -54,16 +54,16 @@ class TicketController @Inject()(cc: ControllerComponents,ws: WSClient, config: 
                 updated_at = (rawTicket \ "updated_at").asOpt[ZonedDateTime]
               )
             }
-            if (jsonType == "true") Ok(Json.obj("tickets" -> tickets, "count" -> count, "previous" -> previousPage, "next" -> nextPage))
+            if (jsonType.toLowerCase() == "true") Ok(Json.obj("tickets" -> tickets, "count" -> count, "previous" -> previousPage, "next" -> nextPage))
             else Ok(views.html.tickets(tickets, count, previousPage, nextPage))
           case _ =>
             val message = "Error in response. Cannot parse response to json."
-            if (jsonType == "true") InternalServerError(Json.obj("message" -> message))
+            if (jsonType.toLowerCase() == "true") InternalServerError(Json.obj("message" -> message))
             else InternalServerError(views.html.errorDisplay(message))
         }
       } else {
         val message = "Cannot retrieve tickets information from Source: " + url + ", Status: " + response.status
-        if (jsonType == "true") InternalServerError(Json.obj("message" -> message))
+        if (jsonType.toLowerCase() == "true") InternalServerError(Json.obj("message" -> message))
         else InternalServerError(views.html.errorDisplay(message))
       }
     }
