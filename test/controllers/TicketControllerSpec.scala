@@ -34,6 +34,22 @@ class TicketControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecti
       contentAsString(ticketsPage) must include ("tickets in total")
     }
 
+    "render single ticket page from the router" in {
+      val ticketPage = route(app, FakeRequest(GET, "/tickets/1")).get
+
+      status(ticketPage) mustBe OK
+      contentType(ticketPage) mustBe Some("text/html")
+      contentAsString(ticketPage) must include ("Ticket #1")
+    }
+
+    "render error page if input invalid id" in {
+      val ticketPage = route(app, FakeRequest(GET, "/tickets/0")).get
+
+      status(ticketPage) mustBe INTERNAL_SERVER_ERROR
+      contentType(ticketPage) mustBe Some("text/html")
+      contentAsString(ticketPage) must include ("Opps, Error")
+    }
+
     "return the json from the application" in {
       val controller = inject[TicketController]
       val ticketsResult = controller.getAllTicket("", "true").apply(FakeRequest(GET, "/tickets?jsonType=true"))
