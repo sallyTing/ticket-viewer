@@ -1,0 +1,47 @@
+
+@(ticket: Ticket)
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Ticket @ticket.id</title>
+    </head>
+    <body>
+        <h2>Ticket #@ticket.id</h2>
+        <div>
+            <a type="button" href="/tickets">All tickets</a>
+        </div>
+        <br>
+        <div>
+            <p><strong>Ticket ID:</strong> @ticket.id</p>
+            @if(ticket.ticketType.nonEmpty) {
+            <p><strong>Ticket type:</strong> @ticket.ticketType</p>
+            }
+            @if(ticket.subject.nonEmpty) {
+            <p><strong>Ticket subject:</strong> @ticket.subject</p>
+            }
+            @if(ticket.description.nonEmpty) {
+            <p><strong>Ticket description:</strong> @ticket.description</p>
+            }
+            @if(ticket.priority.nonEmpty) {
+            <p><strong>Ticket priority:</strong> @ticket.priority</p>
+            }
+            @if(ticket.status.nonEmpty) {
+            <p><strong>Ticket status:</strong> @ticket.status</p>
+            }
+            @if(ticket.tags.nonEmpty) {
+            <p><strong>Ticket Tags:</strong>
+                @for(tag <- ticket.tags.getOrElse(Seq())) {
+                    @(tag + ", ")
+                }
+            </p>
+            }
+            @if(ticket.created_at.nonEmpty) {
+            <p><strong>Ticket create:</strong> @ticket.created_at</p>
+            }
+            @if(ticket.updated_at.nonEmpty) {
+            <p><strong>Ticket update:</strong> @ticket.updated_at</p>
+            }
+        </div>
+    </body>
+</html>
