@@ -1,0 +1,48 @@
+
+@(tickets: Seq[Ticket], count: Int, previousPage: Option[String], nextPage: Option[String])
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Ticket List</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+    </head>
+    <body>
+        <h2>@count tickets in total</h2>
+        <div>
+            @if(previousPage.nonEmpty) {
+            <a type="button" href=@("/tickets" + previousPage.getOrElse(""))>Previous Page</a>
+            }
+            @if(nextPage.nonEmpty) {
+            <a type="button" href=@("/tickets" + nextPage.getOrElse(""))>Next Page</a>
+            }
+        </div>
+        <br>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th><th>Type</th><th>subject</th><th>Description</th><th>Priority</th><th>status</th><th>Tags</th><th>Create Date</th><th>Update Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for(ticket <- tickets) {
+            <tr>
+                <td>@ticket.id</td>
+                <td>@ticket.ticketType</td>
+                <td>@ticket.subject</td>
+                <td>@ticket.description</td>
+                <td>@ticket.priority</td>
+                <td>@ticket.status</td>
+                <td>
+                    @for(tag <- ticket.tags.getOrElse(Seq())) {
+                        @(tag + ", ")
+                    }
+                </td>
+                <td>@ticket.created_at</td>
+                <td>@ticket.updated_at</td>
+            </tr>
+            }
+            </tbody>
+        </table>
+    </body>
+</html>

@@ -7,7 +7,6 @@ import models.Ticket
 import play.api.Configuration
 import play.api.libs.json.{JsArray, JsObject, Json}
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.mvc._
@@ -26,7 +25,7 @@ class TicketController @Inject()(cc: ControllerComponents,ws: WSClient, config: 
   val password = config.get[String]("zendesk.password")
 
 
-  def getAllTicket(page: String) = Action.async { implicit request: Request[AnyContent] =>
+  def getAllTicket(page: String, jsonType: String) = Action.async { implicit request: Request[AnyContent] =>
     val url = if (page != "") {
       ticketURL + "?page=" + page
     } else {
@@ -39,8 +38,8 @@ class TicketController @Inject()(cc: ControllerComponents,ws: WSClient, config: 
         Json.parse(response.body) match {
           case jsResult: JsObject =>
             val count = (jsResult \ "count").as[Int]
-            val previousPage = (jsResult \ "previous_page").asOpt[String]
-            val nextPage = (jsResult \ "next_page").asOpt[String]
+            val previousPage = (jsResult \ "previous_page").asOpt[String].map(_.dropWhile(c => c != '?'))
+            val nextPage = (jsResult \ "next_page").asOpt[String].map(_.dropWhile(c => c != '?'))
             val tickets = (jsResult \ "tickets").as[JsArray].value.map{ rawTicket =>
               Ticket(
                 id = (rawTicket \ "id").as[Int],
@@ -55,14 +54,17 @@ class TicketController @Inject()(cc: ControllerComponents,ws: WSClient, config: 
                 updated_at = (rawTicket \ "updated_at").asOpt[ZonedDateTime]
               )
             }
-            Ok(Json.obj("tickets" -> tickets, "count" -> count, "previous" -> previousPage, "next" -> nextPage))
+            if (jsonType == "true") Ok(Json.obj("tickets" -> tickets, "count" -> count, "previous" -> previousPage, "next" -> nextPage))
+            else Ok(views.html.tickets(tickets, count, previousPage, nextPage))
           case _ =>
             val message = "Error in response. Cannot parse response to json."
-            InternalServerError(Json.obj("message" -> message))
+            if (jsonType == "true") InternalServerError(Json.obj("message" -> message))
+            else InternalServerError(views.html.errorDisplay(message))
         }
       } else {
         val message = "Cannot retrieve tickets information from Source: " + url + ", Status: " + response.status
-        InternalServerError(Json.obj("message" -> message))
+        if (jsonType == "true") InternalServerError(Json.obj("message" -> message))
+        else InternalServerError(views.html.errorDisplay(message))
       }
     }
   }
