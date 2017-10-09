@@ -22,8 +22,8 @@ import scala.concurrent.Future
 @Singleton
 class TicketController @Inject()(cc: ControllerComponents,ws: WSClient, config: Configuration) extends AbstractController(cc) {
 
-  val ticketURL = config.get[String]("zendesk.ticketsURL")
-  val singleTicketURL = config.get[String]("zendesk.ticketURL")
+  val ticketURL = config.get[String]("zendesk.accountSite") + "/api/v2/tickets.json"
+  val singleTicketURL = config.get[String]("zendesk.accountSite") + "/api/v2/tickets/"
   val user = config.get[String]("zendesk.user")
   val password = config.get[String]("zendesk.password")
 

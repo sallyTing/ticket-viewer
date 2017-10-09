@@ -9,7 +9,8 @@ $ bower install sbt
 in "conf/application.conf", insert the test account detail
 ```
 zendesk {
-  user = "[useraccount]"
+  accountSite = "[account site]"
+  user = "[user account]"
   password = "[password]"
 }
 ```
